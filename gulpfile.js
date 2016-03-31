@@ -1,18 +1,31 @@
-//  引入 gulp 和 browser-sync 
 var gulp = require('gulp');
 var browserSync = require('browser-sync').create();
-// 压缩js
 var uglify = require('gulp-uglify');
-// 源码压缩之后不易报错定位  sourcemaps用于错误查找
 var sourcemaps = require('gulp-sourcemaps');
-// 压缩css
 var minifycss = require('gulp-minify-css');
-// sass
 var sass = require('gulp-ruby-sass');
-// 压缩图片
 var imagemin = require('gulp-imagemin');
-// jade
 var jade = require('gulp-jade');
+var jscs = require('gulp-jscs');
+var jshint = require('gulp-jshint');
+
+var paths = {
+  scripts: ['**/*.js', '!node_modules/**/*.js', '!public/**/*.js', '!src/**/*.js']
+};
+
+gulp.task('jshint', function() {
+  return gulp.src(paths.scripts)
+    .pipe(jshint())
+    .pipe(jshint.reporter('default'))
+    .pipe(jshint.reporter('fail'));
+});
+
+gulp.task('jscs', function() {
+  return gulp.src(paths.scripts)
+    .pipe(jscs())
+    .pipe(jscs.reporter())
+    .pipe(jscs.reporter('fail'));
+});
 
 // js任务 
 gulp.task('js', function () {
@@ -87,5 +100,9 @@ gulp.task('serve', function () {
 
 });
 
+gulp.task('dist', ['sass', 'copyfonts', 'images']);
+
+gulp.task('lint', ['jshint', 'jscs']);
+
 // 开启gulp任务 
-gulp.task('default',['serve','auto']);
+gulp.task('default', ['lint', 'dist','serve', 'auto']);
